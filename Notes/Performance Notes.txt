@@ -1,0 +1,44 @@
+Pre-pruning (max_depth=11, min_leaf_weight=9.0): WMAE=0.182040
+Pre-pruning (max_depth=11, min_leaf_weight=11.0): WMAE=0.182022
+Pre-pruning (max_depth=11, min_leaf_weight=13.0): WMAE=0.181984
+Pre-pruning (max_depth=11, min_leaf_weight=15.0): WMAE=0.182097
+Pre-pruning (max_depth=11, min_leaf_weight=20.0): WMAE=0.181914
+Pre-pruning (max_depth=11, min_leaf_weight=50.0): WMAE=0.182112
+Pre-pruning (max_depth=13, min_leaf_weight=9.0): WMAE=0.181675
+Pre-pruning (max_depth=13, min_leaf_weight=11.0): WMAE=0.181740
+Pre-pruning (max_depth=13, min_leaf_weight=13.0): WMAE=0.181659
+Pre-pruning (max_depth=13, min_leaf_weight=15.0): WMAE=0.181849
+Pre-pruning (max_depth=13, min_leaf_weight=20.0): WMAE=0.181738
+Pre-pruning (max_depth=13, min_leaf_weight=50.0): WMAE=0.182081
+Pre-pruning (max_depth=15, min_leaf_weight=9.0): WMAE=0.181912
+Pre-pruning (max_depth=15, min_leaf_weight=11.0): WMAE=0.181755
+Pre-pruning (max_depth=15, min_leaf_weight=13.0): WMAE=0.181817
+Pre-pruning (max_depth=15, min_leaf_weight=15.0): WMAE=0.181826
+Pre-pruning (max_depth=15, min_leaf_weight=20.0): WMAE=0.181777
+Pre-pruning (max_depth=15, min_leaf_weight=50.0): WMAE=0.182019
+Pre-pruning (max_depth=17, min_leaf_weight=9.0): WMAE=0.181921
+Pre-pruning (max_depth=17, min_leaf_weight=11.0): WMAE=0.181552
+Pre-pruning (max_depth=17, min_leaf_weight=13.0): WMAE=0.181692
+Pre-pruning (max_depth=17, min_leaf_weight=15.0): WMAE=0.181927
+Pre-pruning (max_depth=17, min_leaf_weight=20.0): WMAE=0.181797
+Pre-pruning (max_depth=17, min_leaf_weight=50.0): WMAE=0.182118
+Pre-pruning (max_depth=19, min_leaf_weight=9.0): WMAE=0.182051
+Pre-pruning (max_depth=19, min_leaf_weight=11.0): WMAE=0.181683
+Pre-pruning (max_depth=19, min_leaf_weight=13.0): WMAE=0.181747
+Pre-pruning (max_depth=19, min_leaf_weight=15.0): WMAE=0.181848
+Pre-pruning (max_depth=19, min_leaf_weight=20.0): WMAE=0.181513
+Pre-pruning (max_depth=19, min_leaf_weight=50.0): WMAE=0.182029
+Pre-pruning (max_depth=21, min_leaf_weight=9.0): WMAE=0.182125
+Pre-pruning (max_depth=21, min_leaf_weight=11.0): WMAE=0.181747
+Pre-pruning (max_depth=21, min_leaf_weight=13.0): WMAE=0.181718
+Pre-pruning (max_depth=21, min_leaf_weight=15.0): WMAE=0.181878
+Pre-pruning (max_depth=21, min_leaf_weight=20.0): WMAE=0.181569
+Pre-pruning (max_depth=21, min_leaf_weight=50.0): WMAE=0.181947
+Chosen pre-pruning caps: {'max_depth': 19, 'min_leaf_weight': 20.0, 'wmae': 0.181512531939047}
+
+Validation metrics (chosen caps):
+ WMAE         : 0.181512531939047
+ WRMSE        : 0.7420426405355376
+ Weighted R^2 : 0.00808899246315209
+ Poisson Dev. : 62097.72179452211
+
