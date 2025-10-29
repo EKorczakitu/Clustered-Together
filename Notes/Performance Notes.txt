@@ -170,3 +170,19 @@ Group-mean (Area) WMAE (val): 0.189543
 Model WMAE (val): 0.181629
 Improvement vs Global (val): 4.30%
 Improvement vs Group (Area, val): 4.18%
+
+
+Chosen α (fast): 0.1323177964202585 | score: 0.18271809228970973
+
+Test metrics (final pruned tree - FAST):
+ WMAE         : 0.18311657685524457
+ WRMSE        : 0.7748338878584664
+ Weighted R^2 : 0.0126941832622115
+ Poisson Dev. : 47614.68320686281
+
+=== Baseline comparisons (TEST) ===
+Global-mean WMAE (test): 0.191320
+Group-mean (Area) WMAE (test): 0.191140
+Model WMAE (test): 0.183117
+Improvement vs Global (test): 4.29%
+Improvement vs Group (Area, test): 4.20%
