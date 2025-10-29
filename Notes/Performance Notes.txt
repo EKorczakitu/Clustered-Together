@@ -42,3 +42,131 @@ Validation metrics (chosen caps):
  Weighted R^2 : 0.00808899246315209
  Poisson Dev. : 62097.72179452211
 
+Pre-pruning caps: max_depth=10, min_leaf_weight=5.0 => WMAE=0.182248
+Pre-pruning caps: max_depth=10, min_leaf_weight=10.0 => WMAE=0.181960
+Pre-pruning caps: max_depth=10, min_leaf_weight=20.0 => WMAE=0.182153
+Pre-pruning caps: max_depth=10, min_leaf_weight=40.0 => WMAE=0.182033
+Pre-pruning caps: max_depth=10, min_leaf_weight=50.0 => WMAE=0.182151
+Pre-pruning caps: max_depth=10, min_leaf_weight=100.0 => WMAE=0.182525
+Pre-pruning caps: max_depth=20, min_leaf_weight=5.0 => WMAE=0.182078
+Pre-pruning caps: max_depth=20, min_leaf_weight=10.0 => WMAE=0.181839
+Pre-pruning caps: max_depth=20, min_leaf_weight=20.0 => WMAE=0.181477
+Pre-pruning caps: max_depth=20, min_leaf_weight=40.0 => WMAE=0.181669
+Pre-pruning caps: max_depth=20, min_leaf_weight=50.0 => WMAE=0.182044
+Pre-pruning caps: max_depth=20, min_leaf_weight=100.0 => WMAE=0.182113
+Pre-pruning caps: max_depth=40, min_leaf_weight=5.0 => WMAE=0.183441
+Pre-pruning caps: max_depth=40, min_leaf_weight=10.0 => WMAE=0.182277
+Pre-pruning caps: max_depth=40, min_leaf_weight=20.0 => WMAE=0.181321
+Pre-pruning caps: max_depth=40, min_leaf_weight=40.0 => WMAE=0.181438
+Pre-pruning caps: max_depth=40, min_leaf_weight=50.0 => WMAE=0.181994
+Pre-pruning caps: max_depth=40, min_leaf_weight=100.0 => WMAE=0.181982
+Pre-pruning caps: max_depth=60, min_leaf_weight=5.0 => WMAE=0.183449
+Pre-pruning caps: max_depth=60, min_leaf_weight=10.0 => WMAE=0.182288
+Pre-pruning caps: max_depth=60, min_leaf_weight=20.0 => WMAE=0.181321
+Pre-pruning caps: max_depth=60, min_leaf_weight=40.0 => WMAE=0.181438
+Pre-pruning caps: max_depth=60, min_leaf_weight=50.0 => WMAE=0.181994
+Pre-pruning caps: max_depth=60, min_leaf_weight=100.0 => WMAE=0.181982
+Pre-pruning caps: max_depth=100, min_leaf_weight=5.0 => WMAE=0.183449
+Pre-pruning caps: max_depth=100, min_leaf_weight=10.0 => WMAE=0.182288
+Pre-pruning caps: max_depth=100, min_leaf_weight=20.0 => WMAE=0.181321
+Pre-pruning caps: max_depth=100, min_leaf_weight=40.0 => WMAE=0.181438
+Pre-pruning caps: max_depth=100, min_leaf_weight=50.0 => WMAE=0.181994
+Pre-pruning caps: max_depth=100, min_leaf_weight=100.0 => WMAE=0.181982
+Chosen pre-pruning caps: {'max_depth': 40, 'min_leaf_weight': 20, 'wmae': 0.18132061421683113}
+
+Validation metrics (chosen caps):
+ WMAE         : 0.18132061421683113
+ WRMSE        : 0.7436713001705844
+ Weighted R^2 : 0.003730056220139888
+ Poisson Dev. : 94742.50253172152
+
+
+Chosen α (fast): 623.2340262080543 | score: 0.0
+
+Test metrics (final pruned tree - FAST):
+ WMAE         : 0.19023763592977727
+ WRMSE        : 0.7798001302270505
+ Weighted R^2 : -2.508014822932836e-06
+ Poisson Dev. : 45266.13236878937
+
+
+
+Pre-pruning caps: max_depth=8, min_leaf_weight=15.0 => WMAE=0.182421
+Pre-pruning caps: max_depth=8, min_leaf_weight=20.0 => WMAE=0.182322
+Pre-pruning caps: max_depth=8, min_leaf_weight=25.0 => WMAE=0.182329
+Pre-pruning caps: max_depth=8, min_leaf_weight=50.0 => WMAE=0.182392
+Pre-pruning caps: max_depth=8, min_leaf_weight=100.0 => WMAE=0.182614
+Pre-pruning caps: max_depth=8, min_leaf_weight=200.0 => WMAE=0.182977
+Pre-pruning caps: max_depth=8, min_leaf_weight=400.0 => WMAE=0.183277
+Pre-pruning caps: max_depth=10, min_leaf_weight=15.0 => WMAE=0.182204
+Pre-pruning caps: max_depth=10, min_leaf_weight=20.0 => WMAE=0.182153
+Pre-pruning caps: max_depth=10, min_leaf_weight=25.0 => WMAE=0.182174
+Pre-pruning caps: max_depth=10, min_leaf_weight=50.0 => WMAE=0.182151
+Pre-pruning caps: max_depth=10, min_leaf_weight=100.0 => WMAE=0.182525
+Pre-pruning caps: max_depth=10, min_leaf_weight=200.0 => WMAE=0.182859
+Pre-pruning caps: max_depth=10, min_leaf_weight=400.0 => WMAE=0.183119
+Pre-pruning caps: max_depth=12, min_leaf_weight=15.0 => WMAE=0.181882
+Pre-pruning caps: max_depth=12, min_leaf_weight=20.0 => WMAE=0.181798
+Pre-pruning caps: max_depth=12, min_leaf_weight=25.0 => WMAE=0.181936
+Pre-pruning caps: max_depth=12, min_leaf_weight=50.0 => WMAE=0.182012
+Pre-pruning caps: max_depth=12, min_leaf_weight=100.0 => WMAE=0.182336
+Pre-pruning caps: max_depth=12, min_leaf_weight=200.0 => WMAE=0.182707
+Pre-pruning caps: max_depth=12, min_leaf_weight=400.0 => WMAE=0.183053
+Pre-pruning caps: max_depth=14, min_leaf_weight=15.0 => WMAE=0.181836
+Pre-pruning caps: max_depth=14, min_leaf_weight=20.0 => WMAE=0.181757
+Pre-pruning caps: max_depth=14, min_leaf_weight=25.0 => WMAE=0.181922
+Pre-pruning caps: max_depth=14, min_leaf_weight=50.0 => WMAE=0.182088
+Pre-pruning caps: max_depth=14, min_leaf_weight=100.0 => WMAE=0.182224
+Pre-pruning caps: max_depth=14, min_leaf_weight=200.0 => WMAE=0.182611
+Pre-pruning caps: max_depth=14, min_leaf_weight=400.0 => WMAE=0.183067
+Chosen pre-pruning caps: {'max_depth': 14, 'min_leaf_weight': 20, 'wmae': 0.18175668884938254}
+
+Validation metrics (chosen caps):
+ WMAE         : 0.18175668884938254
+ WRMSE        : 0.7405240273276018
+ Weighted R^2 : 0.012144791147331135
+ Poisson Dev. : 43564.345241744166
+C:\Users\Emil\AppData\Local\Temp\ipykernel_12208\2395184416.py:30: RuntimeWarning: divide by zero encountered in log
+  term = np.where(y > 0, y * np.log(y / lam), 0.0) - (y - lam)
+C:\Users\Emil\AppData\Local\Temp\ipykernel_12208\2395184416.py:30: RuntimeWarning: invalid value encountered in multiply
+  term = np.where(y > 0, y * np.log(y / lam), 0.0) - (y - lam)
+
+Chosen α (fast): 0.29360105905611794 | score: 0.1827667453867573
+
+Test metrics (final pruned tree - FAST):
+ WMAE         : 0.18288700648556483
+ WRMSE        : 0.7743473947470304
+ Weighted R^2 : 0.01393358876150863
+ Poisson Dev. : 44381.81292742161
+
+
+
+Pre-pruning caps: max_depth=12, min_leaf_weight=15.0 => WMAE=0.181882
+Pre-pruning caps: max_depth=12, min_leaf_weight=18.0 => WMAE=0.181753
+Pre-pruning caps: max_depth=12, min_leaf_weight=20.0 => WMAE=0.181798
+Pre-pruning caps: max_depth=12, min_leaf_weight=22.0 => WMAE=0.181845
+Pre-pruning caps: max_depth=12, min_leaf_weight=25.0 => WMAE=0.181936
+Pre-pruning caps: max_depth=14, min_leaf_weight=15.0 => WMAE=0.181836
+Pre-pruning caps: max_depth=14, min_leaf_weight=18.0 => WMAE=0.181629
+Pre-pruning caps: max_depth=14, min_leaf_weight=20.0 => WMAE=0.181757
+Pre-pruning caps: max_depth=14, min_leaf_weight=22.0 => WMAE=0.181767
+Pre-pruning caps: max_depth=14, min_leaf_weight=25.0 => WMAE=0.181922
+Pre-pruning caps: max_depth=16, min_leaf_weight=15.0 => WMAE=0.181903
+Pre-pruning caps: max_depth=16, min_leaf_weight=18.0 => WMAE=0.181766
+Pre-pruning caps: max_depth=16, min_leaf_weight=20.0 => WMAE=0.181829
+Pre-pruning caps: max_depth=16, min_leaf_weight=22.0 => WMAE=0.181805
+Pre-pruning caps: max_depth=16, min_leaf_weight=25.0 => WMAE=0.181845
+Chosen pre-pruning caps: {'max_depth': 14, 'min_leaf_weight': 18, 'wmae': 0.18162908107788728}
+
+Validation metrics (chosen caps):
+ WMAE         : 0.18162908107788728
+ WRMSE        : 0.7404891122545278
+ Weighted R^2 : 0.012237942003804014
+ Poisson Dev. : 43623.02355559506
+
+=== Baseline comparisons (VALIDATION) ===
+Global-mean WMAE (val): 0.189786
+Group-mean (Area) WMAE (val): 0.189543
+Model WMAE (val): 0.181629
+Improvement vs Global (val): 4.30%
+Improvement vs Group (Area, val): 4.18%
