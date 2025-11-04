@@ -31,9 +31,9 @@ def scale_features(df, features):
     return df, scaler
 
 def seperate_features(df):
+    """Separates numeric and categorical columns in a DataFrame."""
     numeric_features = df.select_dtypes(include=['int64', 'float64']).columns.tolist()
     categorical_features = df.select_dtypes(exclude=['int64', 'float64']).columns.tolist()
-    
     return numeric_features, categorical_features
 
 # -----------------------------
