@@ -2,186 +2,141 @@ import pandas as pd
 import numpy as np
 from sklearn.preprocessing import StandardScaler
 
-# -----------------------------
-# Cleaning
-# -----------------------------
+# ==========================================
+# 1. CORE CLEANING (Shared by all)
+# ==========================================
 def clean_data(df, drop_exp_above_1=True):
+    """
+    Basic row filtering.
+    """
     df = df.copy()
+    
+    # 1. Cap Exposure at 1 (standard insurance practice)
     if drop_exp_above_1:
-        df = df[df["Exposure"] <= 1]
+        df = df[df["Exposure"] <= 1] # or replace with value of 1 instead of dropping
+    
+    # 2. Drop NaN
     df = df.dropna()
+    
+    # 3. Drop IDs (useless for prediction)
+    if "IDpol" in df.columns:
+        df = df.drop(columns=["IDpol"])
+        
     return df
 
-# -----------------------------
-# Feature selection (project choices)
-# -----------------------------
-def feature_selection(df):
-    # Drop IDs and Density (we decided to keep Area and drop Density)
-    drop_cols = [c for c in ["IDpol", "Density"] if c in df.columns]
-    return df.drop(columns=drop_cols)
-
-# -----------------------------
-# Helper: Separate features
-# -----------------------------
-def seperate_features(df):
-    """Separates numeric and categorical columns in a DataFrame."""
-    numeric_features = df.select_dtypes(include=['int64', 'float64']).columns.tolist()
-    categorical_features = df.select_dtypes(exclude=['int64', 'float64']).columns.tolist()
-    return numeric_features, categorical_features
-
-# -----------------------------
-# Method 1: Preprocessing for Tree
-# -----------------------------
+# ==========================================
+# 2. METHOD M1: PREPROCESSING FOR TREES
+# Strategy: Keep it RAW. Trees handle non-linearities and scaling themselves.
+# ==========================================
 def preprocess_for_tree(df):
     """
-    Returns:
-      X      -> one-hot features (no scaling)
-      y_rate -> ClaimNb / Exposure
-      w_expo -> Exposure
+    Minimal preprocessing for Decision Trees / XGBoost / Random Forest.
+    - No Scaling (Trees don't need it)
+    - No Binning (Trees do this better automatically)
+    - One-Hot Encoding for Categoricals
     """
-    df = feature_selection(clean_data(df)).copy()
-
+    # 1. Clean
+    df = clean_data(df)
+    
+    # 2. Separate Target & Weights
     y_rate = (df["ClaimNb"] / df["Exposure"]).astype(float)
     w_expo = df["Exposure"].astype(float)
-
-    num_cols = [c for c in ["VehPower","VehAge","DrivAge","BonusMalus"] if c in df.columns]
-    cat_cols = [c for c in ["Area","VehBrand","VehGas","Region"] if c in df.columns]
-
+    
+    # 3. Define Features
+    # Note: We keep Density and BonusMalus RAW. 
+    # The Tree will find the split points (e.g. BonusMalus > 105).
+    num_cols = ["VehPower", "VehAge", "DrivAge", "BonusMalus", "Density"]
+    cat_cols = ["Area", "VehBrand", "VehGas", "Region"]
+    
+    # 4. One-Hot Encoding
+    # We drop_first=True to reduce multicollinearity, though trees handle it okay.
     X = pd.get_dummies(df[num_cols + cat_cols], columns=cat_cols, drop_first=True)
+    
     return X, y_rate, w_expo
 
-# -----------------------------
-# Method 2: Preprocessing for Neural Network (NEW)
-# -----------------------------
-def preprocess_for_nn(df, scaler=None, ref_columns=None):
-    """
-    Args:
-        df: The dataframe to process
-        scaler: (Optional) An existing StandardScaler object. 
-                If None, a new one is fitted (use this for Training data).
-                If provided, it transforms the data (use this for Test data).
-        ref_columns: (Optional) List of column names from the training set 
-                     to ensure the test set has the exact same columns/order.
-
-    Returns:
-        X      -> Scaled and One-Hot Encoded DataFrame
-        y_rate -> ClaimNb / Exposure
-        w_expo -> Exposure
-        scaler -> The fitted scaler object (to be saved for the test set)
-    """
-    # 1. Clean and Select
-    df = feature_selection(clean_data(df)).copy()
-
-    # 2. Separation of Target and Weights
-    y_rate = (df["ClaimNb"] / df["Exposure"]).astype(float)
-    w_expo = df["Exposure"].astype(float)
-
-    # 3. Define Feature Groups
-    num_cols = ["VehPower", "VehAge", "DrivAge", "BonusMalus"]
-    cat_cols = ["Area", "VehBrand", "VehGas", "Region"]
-
-    # 4. Scaling Numerical Features
-    # Crucial: Fit on Train, Transform on Test
-    if scaler is None:
-        scaler = StandardScaler()
-        df[num_cols] = scaler.fit_transform(df[num_cols])
-    else:
-        df[num_cols] = scaler.transform(df[num_cols])
-
-    # 5. One-Hot Encoding
-    X = pd.get_dummies(df[num_cols + cat_cols], columns=cat_cols, drop_first=True)
-
-    # 6. Ensure Columns Match (Handle missing/extra categories in Test)
-    if ref_columns is not None:
-        # Add missing columns with 0
-        for col in ref_columns:
-            if col not in X.columns:
-                X[col] = 0
-        # Drop extra columns not in train
-        X = X[ref_columns]
-        # Enforce order
-        X = X[ref_columns]
-
-    return X, y_rate, w_expo, scaler
-
+# ==========================================
+# 3. METHOD M2/M3: ACTUARIAL PREPROCESSING
+# Strategy: Feature Engineering for Linear/Neural Models.
+# - Log-transforms for heavy tails (Density)
+# - Binning for U-shaped risks (Age)
+# - Scaling for convergence
+# ==========================================
 def preprocess_actuarial(df, scaler=None, ref_columns=None):
     """
-    Advanced preprocessing based on Actuarial literature.
-    Features:
-    - Density: Log-transformed
-    - BonusMalus: Capped at 150, then Log-transformed
-    - VehPower: Merged classes >= 9
-    - VehAge, DrivAge: Binned into categories
-    - Area: Mapped to integer (Ordinal) or kept categorical
-    """
-    # 1. Clean Data
-    df = df.copy()
-    df = df[df["Exposure"] <= 1].dropna()
+    Advanced preprocessing for Neural Networks (M2) or GLMs (M3).
     
-    # 2. Targets
+    Args:
+        scaler: StandardScaler object (Fit on Train, Transform on Test)
+        ref_columns: List of columns from Train to ensure Test has exact match
+    """
+    # 1. Clean
+    df = clean_data(df)
+    
+    # 2. Target & Weights
     y_rate = (df["ClaimNb"] / df["Exposure"]).astype(float)
     w_expo = df["Exposure"].astype(float)
 
-    # -----------------------------
-    # Feature Engineering
-    # -----------------------------
+    # --- Feature Engineering ---
+
+    # A. Density -> Log Transform
+    # Density spans 0 to 20,000+. Log compresses this range.
+    # adding 1 is safe practice for log(0), though density usually > 0
+    df["LogDensity"] = np.log1p(df["Density"]) 
     
-    # A. Density (Log Transform)
-    # We add 1 to avoid log(0) just in case, though density usually > 0
-    df["LogDensity"] = np.log(df["Density"])
-    
-    # B. BonusMalus (Cap + Log)
+    # B. BonusMalus -> Cap & Log
+    # Capping at 150 prevents extreme "bad drivers" from skewing the mean
     df["BonusMalus"] = df["BonusMalus"].clip(upper=150)
     df["LogBonusMalus"] = np.log(df["BonusMalus"])
     
-    # C. VehPower (Merge >= 9)
-    # We treat this as Categorical 
+    # C. VehPower -> Group High Power
+    # Cars with power > 9 are rare and behave similarly (sports cars/luxury)
     df["VehPower_Binned"] = df["VehPower"].apply(lambda x: 9 if x >= 9 else x).astype(str)
     
-    # D. VehAge (Binning)
-    # Bins: [0, 1), [1, 10], (10, inf)
-    # We use pd.cut. right=False means [0, 1), right=True means (0, 1]
-    # Adjusting slightly to match your description:
+    # D. VehAge -> Binned
+    # Old cars are safer (less driven/careful owners) vs New cars.
+    # Using 'cut' ensures we handle the continuous nature correctly.
     df["VehAge_Bin"] = pd.cut(df["VehAge"], 
                               bins=[-1, 0, 10, 100], 
                               labels=["New", "Medium", "Old"]).astype(str)
 
-    # E. DrivAge (Binning)
-    # Bins: [18, 21), [21, 26), [26, 31), [31, 41), [41, 51), [51, 71), [71, inf)
+    # E. DrivAge -> Binned (Actuarial Standard)
+    # This captures the "Young Driver Risk" without the model needing to learn a complex non-linear curve.
     age_bins = [17, 21, 26, 31, 41, 51, 71, 200]
     age_labels = ["18-21", "21-26", "26-31", "31-41", "41-51", "51-71", "71+"]
     df["DrivAge_Bin"] = pd.cut(df["DrivAge"], bins=age_bins, labels=age_labels).astype(str)
     
-    # F. Area (Ordinal Encoding A=1, B=2...)
+    # F. Area -> Ordinal (Integer)
+    # Area is ordinal (A is rural, F is Paris). The order matters.
     area_map = {'A':1, 'B':2, 'C':3, 'D':4, 'E':5, 'F':6}
     df["Area_Int"] = df["Area"].map(area_map)
 
-    # -----------------------------
-    # Scaling & Encoding
-    # -----------------------------
+    # --- Scaling & Encoding ---
     
-    # Continuous Features to Scale
-    # Note: We use the LOG versions, not the raw versions
-    cont_cols = ["LogDensity", "LogBonusMalus", "Area_Int"] 
+    # Continuous features (Using the Transformed versions)
+    cont_cols = ["LogDensity", "LogBonusMalus", "Area_Int"]
     
+    # Initialize or Apply Scaler
     if scaler is None:
         scaler = StandardScaler()
         df[cont_cols] = scaler.fit_transform(df[cont_cols])
     else:
         df[cont_cols] = scaler.transform(df[cont_cols])
         
-    # Categorical Features to One-Hot
-    # Note: We use the BINNED versions
+    # Categorical features
     cat_cols = ["VehBrand", "VehGas", "Region", "VehPower_Binned", "VehAge_Bin", "DrivAge_Bin"]
     
-    # Select final columns
+    # Create final X
     X = pd.get_dummies(df[cont_cols + cat_cols], columns=cat_cols, drop_first=True)
     
-    # Ensure Columns Match (for Test set)
+    # --- Alignment (Crucial for Test Set) ---
     if ref_columns is not None:
+        # 1. Add missing columns (filled with 0)
         for col in ref_columns:
             if col not in X.columns:
                 X[col] = 0
+        # 2. Remove extra columns (e.g., a region present in Test but not Train)
+        X = X[ref_columns]
+        # 3. Enforce order
         X = X[ref_columns]
     
     return X, y_rate, w_expo, scaler
