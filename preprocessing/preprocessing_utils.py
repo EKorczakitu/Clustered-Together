@@ -112,5 +112,3 @@ def nn_preprocess(df, scaler=None, ref_columns=None):
         X = X[ref_columns]
 
     return X, y_rate, w_expo, scaler
-
-    return X, y_rate, w_expo, scaler
