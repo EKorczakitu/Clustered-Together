@@ -13,7 +13,7 @@ def clean_data(df, drop_exp_above_1=True):
     
     # 1. Cap Exposure at 1 (standard insurance practice)
     if drop_exp_above_1:
-        df = df[df["Exposure"] <= 1] # or replace with value of 1 instead of dropping
+        df = df[[df["Exposure"] <= 1] & [df["Exposure"] > 0.01] ] # or replace with value of 1 instead of dropping
     
     # 2. Drop NaN
     df = df.dropna()
@@ -48,10 +48,10 @@ def preprocess_for_tree(df):
     num_cols = ["VehPower", "VehAge", "DrivAge", "BonusMalus", "Density"]
     cat_cols = ["Area", "VehBrand", "VehGas", "Region"]
     
-    # 4. One-Hot Encoding
-    # We drop_first=True to reduce multicollinearity, though trees handle it okay.
-    X = pd.get_dummies(df[num_cols + cat_cols], columns=cat_cols, drop_first=True)
-    
+    # 4. One-Hot Encoding / no because no one hot encoding for trees according to book
+    # # We drop_first=True to reduce multicollinearity, though trees handle it okay.
+    # X = pd.get_dummies(df[num_cols + cat_cols], columns=cat_cols, drop_first=True)
+    X= df[num_cols + cat_cols]
     return X, y_rate, w_expo
 
 # ==========================================
@@ -85,30 +85,30 @@ def preprocess_actuarial(df, scaler=None, ref_columns=None):
     
     # B. BonusMalus -> Cap & Log
     # Capping at 150 prevents extreme "bad drivers" from skewing the mean
-    df["BonusMalus"] = df["BonusMalus"].clip(upper=150)
+    # df["BonusMalus"] = df["BonusMalus"].clip(upper=150)
     df["LogBonusMalus"] = np.log(df["BonusMalus"])
     
     # C. VehPower -> Group High Power
     # Cars with power > 9 are rare and behave similarly (sports cars/luxury)
-    df["VehPower_Binned"] = df["VehPower"].apply(lambda x: 9 if x >= 9 else x).astype(str)
+    # df["VehPower_Binned"] = df["VehPower"].apply(lambda x: 9 if x >= 9 else x).astype(str)
     
     # D. VehAge -> Binned
     # Old cars are safer (less driven/careful owners) vs New cars.
     # Using 'cut' ensures we handle the continuous nature correctly.
-    df["VehAge_Bin"] = pd.cut(df["VehAge"], 
-                              bins=[-1, 0, 10, 100], 
-                              labels=["New", "Medium", "Old"]).astype(str)
+    # df["VehAge_Bin"] = pd.cut(df["VehAge"], 
+    #                           bins=[-1, 0, 10, 100], 
+    #                           labels=["New", "Medium", "Old"]).astype(str)
 
     # E. DrivAge -> Binned (Actuarial Standard)
     # This captures the "Young Driver Risk" without the model needing to learn a complex non-linear curve.
-    age_bins = [17, 21, 26, 31, 41, 51, 71, 200]
-    age_labels = ["18-21", "21-26", "26-31", "31-41", "41-51", "51-71", "71+"]
-    df["DrivAge_Bin"] = pd.cut(df["DrivAge"], bins=age_bins, labels=age_labels).astype(str)
+    # age_bins = [17, 21, 26, 31, 41, 51, 71, 200]
+    # age_labels = ["18-21", "21-26", "26-31", "31-41", "41-51", "51-71", "71+"]
+    # df["DrivAge_Bin"] = pd.cut(df["DrivAge"], bins=age_bins, labels=age_labels).astype(str)
     
     # F. Area -> Ordinal (Integer)
     # Area is ordinal (A is rural, F is Paris). The order matters.
-    area_map = {'A':1, 'B':2, 'C':3, 'D':4, 'E':5, 'F':6}
-    df["Area_Int"] = df["Area"].map(area_map)
+    # area_map = {'A':1, 'B':2, 'C':3, 'D':4, 'E':5, 'F':6}
+    # df["Area_Int"] = df["Area"].map(area_map)
 
     # --- Scaling & Encoding ---
     
@@ -139,4 +139,61 @@ def preprocess_actuarial(df, scaler=None, ref_columns=None):
         # 3. Enforce order
         X = X[ref_columns]
     
+    return X, y_rate, w_expo, scaler
+
+
+
+import numpy as np
+import pandas as pd
+from sklearn.preprocessing import StandardScaler
+
+def nn_preprocess(df, scaler=None, ref_columns=None):
+    # -----------------------------
+    # 1. Basic cleaning
+    # -----------------------------
+    df = clean_data(df)  # Your own cleaning function (Exposure cap, ClaimNb cap)
+
+    # Targets
+    y_rate = (df["ClaimNb"] / df["Exposure"]).astype(float)
+    w_expo = df["Exposure"].astype(float)
+
+    # -----------------------------
+    # 2. Log-transform skewed continuous predictors
+    # -----------------------------
+    df["LogDensity"] = np.log1p(df["Density"])           # continuous, heavily skewed
+    df["LogBonusMalus"] = np.log(df["BonusMalus"])       # continuous, multiplicative risk
+
+    # -----------------------------
+    # 3. Continuous columns for scaling
+    # -----------------------------
+    cont_cols = ["LogDensity", "LogBonusMalus", "DrivAge"]
+
+    # Standardize continuous features (ISL requirement)
+    if scaler is None:
+        scaler = StandardScaler()
+        df[cont_cols] = scaler.fit_transform(df[cont_cols])
+    else:
+        df[cont_cols] = scaler.transform(df[cont_cols])
+
+    # -----------------------------
+    # 4. Categorical variables (dummy-encoding)
+    # -----------------------------
+    cat_cols = ["Area", "VehBrand", "VehGas", "Region", "VehPower", "VehAge"]
+
+    # Create final model matrix
+    X = pd.get_dummies(df[cont_cols + cat_cols], columns=cat_cols, drop_first=True)
+
+    # -----------------------------
+    # 5. Column alignment (Train/Test consistency)
+    # -----------------------------
+    if ref_columns is not None:
+
+        # Add missing columns from training set
+        for col in ref_columns:
+            if col not in X.columns:
+                X[col] = 0
+
+        # Remove any extra columns not seen during training
+        X = X[ref_columns]
+
     return X, y_rate, w_expo, scaler
